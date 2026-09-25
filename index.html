@@ -17,9 +17,7 @@ body::before{content:'';position:fixed;top:-50%;left:-50%;width:200%;height:200%
 .btn-accent{background:linear-gradient(135deg,#10b981,#059669);color:#fff;font-weight:700;padding:14px 26px;border-radius:18px;border:none;box-shadow:0 8px 24px rgba(16,185,129,.35);transition:all .3s;cursor:pointer}
 .btn-accent:hover{transform:translateY(-2px);box-shadow:0 12px 32px rgba(16,185,129,.5)}
 .btn-success{background:linear-gradient(135deg,#10b981,#34d399);color:#fff;font-weight:700;padding:12px 22px;border-radius:14px;border:none;transition:all .3s;cursor:pointer;box-shadow:0 4px 16px rgba(16,185,129,.3)}
-.btn-success:hover{transform:translateY(-2px);box-shadow:0 6px 24px rgba(16,185,129,.5)}
 .btn-danger{background:linear-gradient(135deg,#ef4444,#dc2626);color:#fff;font-weight:700;padding:12px 22px;border-radius:14px;border:none;transition:all .3s;cursor:pointer;box-shadow:0 4px 16px rgba(239,68,68,.3)}
-.btn-danger:hover{transform:translateY(-2px);box-shadow:0 6px 24px rgba(239,68,68,.5)}
 .btn-warning{background:linear-gradient(135deg,#f59e0b,#d97706);color:#fff;font-weight:700;padding:12px 22px;border-radius:14px;border:none;transition:all .3s;cursor:pointer;box-shadow:0 4px 16px rgba(245,158,11,.3)}
 .btn-outline{background:transparent;border:1.5px solid rgba(255,255,255,.15);border-radius:16px;padding:14px;color:#9ca3af;cursor:pointer;transition:all .3s;font-weight:600}
 .btn-outline:hover{background:rgba(255,255,255,.05);border-color:rgba(255,255,255,.3);color:#fff}
@@ -111,10 +109,8 @@ body::before{content:'';position:fixed;top:-50%;left:-50%;width:200%;height:200%
 .quiz-question-box{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.1);border-radius:12px;padding:12px}
 .quiz-tab-btn{transition:all .25s ease;cursor:pointer}
 .participant-box{background:linear-gradient(135deg,rgba(59,130,246,.12),rgba(139,92,246,.06));border:2px solid rgba(59,130,246,.3);border-radius:16px;padding:16px}
-.progress-circle{position:relative;width:80px;height:80px}
-.progress-circle svg{transform:rotate(-90deg)}
-.progress-circle .bg{fill:none;stroke:rgba(255,255,255,.08);stroke-width:6}
-.progress-circle .fg{fill:none;stroke:url(#gradient);stroke-width:6;stroke-linecap:round;transition:stroke-dashoffset .8s ease}
+.device-card{background:linear-gradient(145deg,rgba(22,22,36,.95),rgba(12,12,22,.95));border:1px solid rgba(255,255,255,.06);border-radius:18px;padding:16px;margin-bottom:12px;transition:all .3s}
+.device-card.suspicious{border-color:rgba(239,68,68,.4);background:linear-gradient(145deg,rgba(239,68,68,.08),rgba(12,12,22,.95))}
 </style>
 </head>
 <body>
@@ -188,6 +184,30 @@ body::before{content:'';position:fixed;top:-50%;left:-50%;width:200%;height:200%
 <tbody id="users-table-body"><tr><td colspan="4" class="text-center py-8 text-gray-500">লোড হচ্ছে...</td></tr></tbody>
 </table>
 </div>
+</div>
+
+<!-- DEVICE MANAGEMENT (NEW) -->
+<div id="devices-page" class="p-4 space-y-4 sub-page">
+<div class="flex items-center justify-between flex-wrap gap-2">
+<div><h2 class="text-xl font-bold">📱 ডিভাইস ম্যানেজমেন্ট</h2><p class="text-xs text-gray-400">একটি ডিভাইসে সর্বোচ্চ ২টি Account</p></div>
+<button onclick="loadDevices()" class="btn-success text-sm px-4 py-2">🔄 Refresh</button>
+</div>
+<div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+<div class="stat-card"><p class="text-[10px] text-gray-400">মোট ডিভাইস</p><p class="text-2xl font-black text-emerald-400" id="dev-total">0</p></div>
+<div class="stat-card"><p class="text-[10px] text-gray-400">🟢 Normal</p><p class="text-2xl font-black text-green-400" id="dev-normal">0</p></div>
+<div class="stat-card"><p class="text-[10px] text-gray-400">⚠️ Suspicious</p><p class="text-2xl font-black text-red-400" id="dev-suspicious">0</p></div>
+<div class="stat-card"><p class="text-[10px] text-gray-400">🚫 Blocked</p><p class="text-2xl font-black text-gray-400" id="dev-blocked">0</p></div>
+</div>
+<div class="flex flex-wrap gap-3">
+<input id="device-search" placeholder="ডিভাইস ID খুঁজুন..." class="input-field flex-1 min-w-[150px]" oninput="filterDevices()">
+<select id="device-filter" class="input-field w-auto" onchange="filterDevices()">
+<option value="all">সব</option>
+<option value="normal">Normal (১-২ Account)</option>
+<option value="suspicious">Suspicious (৩+ Account)</option>
+<option value="blocked">Blocked</option>
+</select>
+</div>
+<div id="devices-list" class="space-y-3"><p class="text-gray-500 text-center py-8">লোড হচ্ছে...</p></div>
 </div>
 
 <!-- HOME TASKS -->
@@ -386,6 +406,7 @@ body::before{content:'';position:fixed;top:-50%;left:-50%;width:200%;height:200%
 <option value="WITHDRAW_APPROVED">✅ Approve</option>
 <option value="QUIZ_CREATE">🧠 কুইজ</option>
 <option value="QUIZ_APPROVE">✅ কুইজ Approve</option>
+<option value="DEVICE_BLOCK">🚫 ডিভাইস Block</option>
 <option value="BULK_TAKA_RESET">⚠️ বাল্ক রিসেট</option>
 <option value="CONFIG_UPDATE">⚙️ কনফিগ</option>
 </select>
@@ -405,7 +426,6 @@ body::before{content:'';position:fixed;top:-50%;left:-50%;width:200%;height:200%
 <div>
 <p class="text-base font-bold">🔐 ভেরিফিকেশন সিস্টেম</p>
 <p class="text-xs text-gray-400" id="verify-toggle-desc">সব ইউজার ভেরিফিকেশন করতে পারবে</p>
-<p class="text-[10px] text-yellow-400 mt-1">⚠️ OFF করলে Withdrawal-এর verified শর্ত স্কিপ হবে</p>
 </div>
 </div>
 <label class="toggle-switch">
@@ -417,13 +437,17 @@ body::before{content:'';position:fixed;top:-50%;left:-50%;width:200%;height:200%
 
 <div class="stat-card" style="border-color: rgba(16,185,129,0.3);">
 <h3 class="text-sm font-bold mb-3">💰 টাকা রিওয়ার্ড সেটিংস</h3>
+<p class="text-[10px] text-gray-400 mb-3">💡 এখানে যা সেট করবেন — User Panel-এ automatic apply হবে</p>
 <div class="grid grid-cols-2 gap-3">
-<div><label class="text-xs text-gray-400">🎬 অ্যাড দেখলে (৳)</label><input id="cfg-reward-ad" type="number" class="input-field mt-1" value="10" min="1"></div>
-<div><label class="text-xs text-gray-400">⚡ Boost ক্লিক (৳)</label><input id="cfg-reward-bost" type="number" class="input-field mt-1" value="5" min="1"></div>
-<div><label class="text-xs text-gray-400">📅 ডেইলি বোনাস (৳)</label><input id="cfg-reward-daily" type="number" class="input-field mt-1" value="10" min="1"></div>
-<div><label class="text-xs text-gray-400">🎫 প্রোমো কোড (৳)</label><input id="cfg-reward-promo" type="number" class="input-field mt-1" value="10" min="1"></div>
-<div><label class="text-xs text-gray-400">👥 রেফার বোনাস (৳)</label><input id="cfg-reward-referral" type="number" class="input-field mt-1" value="50" min="1"></div>
-<div><label class="text-xs text-gray-400">📢 টেলিগ্রাম (৳)</label><input id="cfg-reward-telegram" type="number" class="input-field mt-1" value="20" min="1"></div>
+<div><label class="text-xs text-gray-400">🎬 অ্যাড দেখলে (৳)</label><input id="cfg-reward-ad" type="number" class="input-field mt-1" value="5" min="0.5" step="0.5"></div>
+<div><label class="text-xs text-gray-400">⚡ Boost ক্লিক (৳)</label><input id="cfg-reward-bost" type="number" class="input-field mt-1" value="2" min="0.5" step="0.5"></div>
+<div><label class="text-xs text-gray-400">📅 ডেইলি বোনাস (৳)</label><input id="cfg-reward-daily" type="number" class="input-field mt-1" value="3" min="0.5" step="0.5"></div>
+<div><label class="text-xs text-gray-400">🎫 প্রোমো কোড (৳)</label><input id="cfg-reward-promo" type="number" class="input-field mt-1" value="5" min="0.5" step="0.5"></div>
+<div><label class="text-xs text-gray-400">👥 রেফার বোনাস (৳)</label><input id="cfg-reward-referral" type="number" class="input-field mt-1" value="20" min="1"></div>
+<div><label class="text-xs text-gray-400">📢 টেলিগ্রাম (৳)</label><input id="cfg-reward-telegram" type="number" class="input-field mt-1" value="10" min="1"></div>
+</div>
+<div class="mt-3 p-3 rounded-xl bg-blue-500/10 border border-blue-500/20">
+<p class="text-[10px] text-blue-300">💡 Welcome Bonus বাদ দেওয়া হয়েছে — নতুন User কিছুই পাবে না। শুধু কাজ করে টাকা কামাবে।</p>
 </div>
 </div>
 
@@ -510,6 +534,7 @@ body::before{content:'';position:fixed;top:-50%;left:-50%;width:200%;height:200%
 <nav class="bottom-nav flex items-center justify-start gap-1 overflow-x-auto">
 <a href="#" class="active" data-page="dashboard-page" onclick="navigateTo('dashboard-page'); return false;"><i data-lucide="layout-dashboard" class="mx-auto"></i><span>ড্যাশ</span></a>
 <a href="#" data-page="users-page" onclick="navigateTo('users-page'); return false;"><i data-lucide="users" class="mx-auto"></i><span>ইউজার</span></a>
+<a href="#" data-page="devices-page" onclick="navigateTo('devices-page'); return false;"><i data-lucide="smartphone" class="mx-auto"></i><span>ডিভাইস</span></a>
 <a href="#" data-page="home-tasks-page" onclick="navigateTo('home-tasks-page'); return false;"><i data-lucide="briefcase" class="mx-auto"></i><span>হোম</span></a>
 <a href="#" data-page="quiz-admin-page" onclick="navigateTo('quiz-admin-page'); return false;"><i data-lucide="brain" class="mx-auto"></i><span>কুইজ</span></a>
 <a href="#" data-page="campaigns-page" onclick="navigateTo('campaigns-page'); return false;"><i data-lucide="target" class="mx-auto"></i><span>টাস্ক</span></a>
@@ -528,8 +553,7 @@ body::before{content:'';position:fixed;top:-50%;left:-50%;width:200%;height:200%
 </nav>
 </div>
 
-<!-- MODALS -->
-
+<!-- HOME TASK MODAL -->
 <div id="home-task-modal" class="modal-overlay">
 <div class="modal-box" style="max-width:520px;">
 <h3 class="text-xl font-bold mb-4" id="home-task-modal-title">🎯 নতুন হোম টাস্ক</h3>
@@ -539,10 +563,10 @@ body::before{content:'';position:fixed;top:-50%;left:-50%;width:200%;height:200%
 <div><label class="text-xs text-gray-400">🎨 আইকন</label><input id="ht-icon" type="text" placeholder="🎬" class="input-field mt-1" value="🎬" maxlength="4"></div>
 <div><label class="text-xs text-gray-400">🏷️ লেবেল</label><input id="ht-label" type="text" placeholder="Watch & Earn" class="input-field mt-1" maxlength="30"></div>
 </div>
-<div><label class="text-xs text-gray-400">📝 ডেসক্রিপশন</label><input id="ht-desc" type="text" placeholder="🎥 দেখুন ও ৳১০ আয়" class="input-field mt-1" maxlength="60"></div>
+<div><label class="text-xs text-gray-400">📝 ডেসক্রিপশন</label><input id="ht-desc" type="text" placeholder="🎥 দেখুন ও ৳৫ আয়" class="input-field mt-1" maxlength="60"></div>
 <div class="bonus-input-box">
 <div class="grid grid-cols-2 gap-3">
-<div><label class="text-xs text-yellow-400 font-bold">💰 রিওয়ার্ড (৳)</label><input id="ht-reward" type="number" class="input-field mt-1" value="10" min="1" max="1000"></div>
+<div><label class="text-xs text-yellow-400 font-bold">💰 রিওয়ার্ড (৳)</label><input id="ht-reward" type="number" class="input-field mt-1" value="5" min="0.5" step="0.5"></div>
 <div><label class="text-xs text-gray-400">⏱️ কুলডাউন (সেকেন্ড)</label><input id="ht-cooldown" type="number" class="input-field mt-1" value="5" min="1" max="300"></div>
 </div>
 </div>
@@ -587,10 +611,9 @@ body::before{content:'';position:fixed;top:-50%;left:-50%;width:200%;height:200%
 <div class="space-y-3">
 <div class="grid grid-cols-2 gap-3">
 <div><label class="text-xs text-gray-400">📅 তারিখ</label><input id="quiz-date-input" type="date" class="input-field mt-1"></div>
-<div><label class="text-xs text-gray-400">💰 প্রতি সঠিক (৳)</label><input id="quiz-reward-per" type="number" class="input-field mt-1" value="5" min="1" max="1000"></div>
+<div><label class="text-xs text-gray-400">💰 প্রতি সঠিক (৳)</label><input id="quiz-reward-per" type="number" class="input-field mt-1" value="0.5" min="0.5" step="0.5"></div>
 </div>
 
-<!-- NEW: PARTICIPANT LIMIT -->
 <div class="participant-box">
 <div class="flex items-center gap-3 mb-3">
 <span class="text-2xl">👥</span>
@@ -648,19 +671,19 @@ body::before{content:'';position:fixed;top:-50%;left:-50%;width:200%;height:200%
 <div><label class="text-xs text-gray-400">📝 বর্ণনা</label><input id="camp-desc" type="text" class="input-field mt-1"></div>
 <div class="bonus-input-box">
 <label class="text-sm font-bold text-yellow-400">💵 ক্লায়েন্ট দিল (৳)</label>
-<input id="camp-client-paid" type="number" class="input-field mt-1" value="500" min="1" oninput="calcCampaign()">
+<input id="camp-client-paid" type="number" class="input-field mt-1" value="100" min="1" oninput="calcCampaign()">
 <div class="grid grid-cols-2 gap-2 mt-2">
-<div class="p-2 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-center"><p class="text-[9px] text-gray-400">আপনার (60%)</p><p class="text-base font-bold text-emerald-400">৳<span id="camp-my-income">300</span></p></div>
-<div class="p-2 rounded-xl bg-blue-500/10 border border-blue-500/20 text-center"><p class="text-[9px] text-gray-400">ইউজারদের (40%)</p><p class="text-base font-bold text-blue-400">৳<span id="camp-user-pool">200</span></p></div>
+<div class="p-2 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-center"><p class="text-[9px] text-gray-400">আপনার (60%)</p><p class="text-base font-bold text-emerald-400">৳<span id="camp-my-income">60</span></p></div>
+<div class="p-2 rounded-xl bg-blue-500/10 border border-blue-500/20 text-center"><p class="text-[9px] text-gray-400">ইউজারদের (40%)</p><p class="text-base font-bold text-blue-400">৳<span id="camp-user-pool">40</span></p></div>
 </div>
 </div>
 <div class="limit-input-box">
 <div class="grid grid-cols-2 gap-3">
-<div><label class="text-xs text-gray-400">👥 স্লট</label><input id="camp-slots" type="number" class="input-field mt-1" value="200" min="1" oninput="calcCampaign()"></div>
-<div><label class="text-xs text-gray-400">💰 প্রতি ইউজার</label><input id="camp-per-user-taka" type="number" class="input-field mt-1" value="1" min="0.1" step="0.1" oninput="calcCampaign()"></div>
+<div><label class="text-xs text-gray-400">👥 স্লট</label><input id="camp-slots" type="number" class="input-field mt-1" value="50" min="1" oninput="calcCampaign()"></div>
+<div><label class="text-xs text-gray-400">💰 প্রতি ইউজার</label><input id="camp-per-user-taka" type="number" class="input-field mt-1" value="0.5" min="0.1" step="0.1" oninput="calcCampaign()"></div>
 </div>
 <div class="mt-3 p-3 rounded-xl bg-purple-500/10 border border-purple-500/20">
-<div class="flex justify-between text-xs"><span class="text-gray-400">বিতরণ:</span><span class="font-bold text-purple-400">৳<span id="camp-will-distribute">200</span></span></div>
+<div class="flex justify-between text-xs"><span class="text-gray-400">বিতরণ:</span><span class="font-bold text-purple-400">৳<span id="camp-will-distribute">25</span></span></div>
 </div>
 </div>
 <div class="timer-warning">
@@ -719,7 +742,7 @@ body::before{content:'';position:fixed;top:-50%;left:-50%;width:200%;height:200%
 <label class="flex items-center gap-2 text-sm text-gray-400"><input type="checkbox" id="event-active" checked><span>সক্রিয়</span></label>
 </div><div class="flex gap-3 mt-4"><button onclick="saveEvent()" class="btn-accent flex-1">💾 সেভ</button><button onclick="closeModal('event-modal')" class="btn-outline flex-1">বাতিল</button></div></div></div>
 
-<div id="promo-modal" class="modal-overlay"><div class="modal-box"><h3 class="text-xl font-bold mb-4">🎯 প্রোমো কোড</h3><input id="promo-code-input" placeholder="কোড" class="input-field mb-3"><input id="promo-reward-input" type="number" placeholder="রিওয়ার্ড (৳)" value="10" class="input-field mb-3"><input id="promo-expiry-input" type="datetime-local" class="input-field mb-3"><label class="flex items-center gap-2 text-sm text-gray-400 mb-4"><input type="checkbox" id="promo-active-check" checked> সক্রিয়</label><div class="flex gap-3"><button onclick="createPromoCode()" class="btn-accent flex-1">✅ তৈরি</button><button onclick="closeModal('promo-modal')" class="btn-outline flex-1">বন্ধ</button></div></div></div>
+<div id="promo-modal" class="modal-overlay"><div class="modal-box"><h3 class="text-xl font-bold mb-4">🎯 প্রোমো কোড</h3><input id="promo-code-input" placeholder="কোড" class="input-field mb-3"><input id="promo-reward-input" type="number" placeholder="রিওয়ার্ড (৳)" value="5" step="0.5" class="input-field mb-3"><input id="promo-expiry-input" type="datetime-local" class="input-field mb-3"><label class="flex items-center gap-2 text-sm text-gray-400 mb-4"><input type="checkbox" id="promo-active-check" checked> সক্রিয়</label><div class="flex gap-3"><button onclick="createPromoCode()" class="btn-accent flex-1">✅ তৈরি</button><button onclick="closeModal('promo-modal')" class="btn-outline flex-1">বন্ধ</button></div></div></div>
 
 <div id="confirm-modal" class="modal-overlay"><div class="modal-box text-center"><h3 class="text-xl font-bold mb-2" id="confirm-title">নিশ্চিত?</h3><p class="text-gray-400 text-sm mb-6" id="confirm-message"></p><div class="flex gap-3"><button onclick="executeConfirm()" class="btn-danger flex-1">✅ হ্যাঁ</button><button onclick="closeModal('confirm-modal')" class="btn-outline flex-1">না</button></div></div></div>
 
@@ -747,6 +770,20 @@ body::before{content:'';position:fixed;top:-50%;left:-50%;width:200%;height:200%
 </div>
 </div>
 
+<div id="device-detail-modal" class="modal-overlay">
+<div class="modal-box" style="max-width:600px;">
+<div class="flex justify-between items-center mb-4">
+<h3 class="text-xl font-bold">📱 ডিভাইস ডিটেইলস</h3>
+<button onclick="closeModal('device-detail-modal')" class="text-gray-400 text-2xl">×</button>
+</div>
+<div id="device-detail-content" class="space-y-3"><p class="text-gray-500 text-center py-4">লোড...</p></div>
+<div class="flex gap-3 mt-4">
+<button onclick="blockDeviceFromModal()" id="device-block-btn" class="btn-danger flex-1">🚫 ব্লক করুন</button>
+<button onclick="closeModal('device-detail-modal')" class="btn-outline flex-1">বন্ধ</button>
+</div>
+</div>
+</div>
+
 <div id="toast" class="toast"><p id="toast-message" class="text-sm text-white text-center"></p></div>
 
 <script type="importmap">
@@ -766,6 +803,7 @@ const db=getFirestore(app);
 
 let currentUser=null;
 let allUsers=[];
+let allDevices=[];
 let editingUserId=null;
 let confirmAction=null;
 let verificationEnabled=true;
@@ -777,6 +815,7 @@ let pendingResetType=null;
 let allQuizzes=[];
 let allQuizSubmissions=[];
 let quizQuestionCounter=0;
+let currentDeviceId=null;
 
 const ADMIN_EMAILS=['mdfahim78mahin@gmail.com','mdfahim78amih@gmail.com'];
 
@@ -836,6 +875,7 @@ if(page==='social-verify-page')loadSocialVerifications();
 if(page==='home-tasks-page')loadHomeTasks();
 if(page==='config-page')loadLastResetInfo();
 if(page==='quiz-admin-page'){loadQuizzes();loadQuizSubmissions();}
+if(page==='devices-page')loadDevices();
 lucide.createIcons();
 };
 
@@ -869,6 +909,7 @@ await loadUserDropdown();await loadManualWithdrawUsers();await loadManualWithdra
 await loadEvents();await loadBadgesAdmin();await loadAdminTickets();
 await loadBadgeUserSelect();await loadSocialVerifications();await loadCampaigns();
 await loadHomeTasks();await loadLastResetInfo();await loadQuizzes();await loadQuizSubmissions();
+await loadDevices();
 }
 
 async function loadDashboard(){
@@ -951,8 +992,8 @@ tbody.innerHTML=users.map(u=>`<tr class="border-b border-white/5">
 
 window.exportUsersCSV=function(){
 if(!allUsers.length)return showToast('⚠️ ইউজার নেই!');
-const csv=['Name,Email,Taka,Verified,Blocked'];
-allUsers.forEach(u=>csv.push([`"${u.name||''}"`,`"${u.email||''}"`,(u.taka||0).toFixed(2),u.isVerified?'Yes':'No',u.isBlocked?'Yes':'No'].join(',')));
+const csv=['Name,Email,Taka,Verified,Blocked,DeviceID'];
+allUsers.forEach(u=>csv.push([`"${u.name||''}"`,`"${u.email||''}"`,(u.taka||0).toFixed(2),u.isVerified?'Yes':'No',u.isBlocked?'Yes':'No',u.deviceId||'N/A'].join(',')));
 const blob=new Blob(['\ufeff'+csv.join('\n')],{type:'text/csv;charset=utf-8;'});
 const url=URL.createObjectURL(blob);const a=document.createElement('a');
 a.href=url;a.download=`users_${new Date().toISOString().split('T')[0]}.csv`;a.click();
@@ -979,6 +1020,7 @@ const lastActive=u.lastActive?.toDate?.();
 const isOnline=lastActive&&(Date.now()-lastActive.getTime()<5*60*1000);
 document.getElementById('user-detail-content').innerHTML=`
 <div class="p-3 rounded-xl bg-white/[0.03] border border-white/5"><p class="text-xs text-gray-400">📧 ইমেইল</p><p class="text-sm">${u.email||'N/A'}</p></div>
+<div class="p-3 rounded-xl bg-white/[0.03] border border-white/5"><p class="text-xs text-gray-400">📱 ডিভাইস ID</p><p class="text-sm font-mono">${u.deviceId||'N/A'}</p></div>
 <div class="p-4 rounded-2xl" style="background:rgba(16,185,129,0.08);border:1.5px solid rgba(16,185,129,0.25);"><p class="text-xs text-gray-400">💰 টাকা</p><p class="text-3xl font-bold text-emerald-400">৳${(u.taka||0).toFixed(2)}</p></div>
 <div class="grid grid-cols-2 gap-3">
 <div class="p-3 rounded-xl bg-white/[0.03] border border-white/5"><p class="text-xs text-gray-400">🪙 মোট আয়</p><p class="text-sm font-bold text-yellow-400">৳${(u.totalEarned||0).toFixed(2)}</p></div>
@@ -1017,7 +1059,118 @@ try{await updateDoc(doc(db,"users",editingUserId),{taka});await logAdminAction('
 window.toggleUserVerify=async function(){const u=allUsers.find(x=>x.id===editingUserId);try{await updateDoc(doc(db,"users",editingUserId),{isVerified:!u.isVerified});showToast('✅!');closeModal('edit-user-modal');}catch(e){showToast('❌ '+e.message);}};
 window.toggleUserBlock=async function(){const u=allUsers.find(x=>x.id===editingUserId);try{await updateDoc(doc(db,"users",editingUserId),{isBlocked:!u.isBlocked});showToast('✅!');closeModal('edit-user-modal');}catch(e){showToast('❌ '+e.message);}};
 
-// ===== QUIZ MANAGEMENT (WITH PARTICIPANT LIMIT) =====
+// ═══════════════════════════════════════════
+// DEVICE MANAGEMENT (NEW)
+// ═══════════════════════════════════════════
+async function loadDevices(){
+try{
+const users=(await getDocs(collection(db,"users"))).docs.map(d=>({id:d.id,...d.data()}));
+const deviceMap={};
+users.forEach(u=>{
+const did=u.deviceId||'unknown';
+if(!deviceMap[did]){deviceMap[did]={deviceId:did,accounts:[],blocked:false,totalTaka:0,firstSeen:null};}
+deviceMap[did].accounts.push({id:u.id,name:u.name||'User',email:u.email||'',taka:u.taka||0,createdAt:u.createdAt});
+deviceMap[did].totalTaka+=u.taka||0;
+const dt=u.createdAt?.toDate?.();
+if(dt&&(!deviceMap[did].firstSeen||dt<deviceMap[did].firstSeen))deviceMap[did].firstSeen=dt;
+if(u.deviceBlocked)deviceMap[did].blocked=true;
+});
+allDevices=Object.values(deviceMap).sort((a,b)=>b.accounts.length-a.accounts.length);
+const total=allDevices.length;
+const suspicious=allDevices.filter(d=>d.accounts.length>2).length;
+const blocked=allDevices.filter(d=>d.blocked).length;
+const normal=total-suspicious-blocked;
+document.getElementById('dev-total').textContent=total;
+document.getElementById('dev-normal').textContent=normal;
+document.getElementById('dev-suspicious').textContent=suspicious;
+document.getElementById('dev-blocked').textContent=blocked;
+renderDevices(allDevices);
+}catch(e){console.error(e);}
+}
+window.loadDevices=loadDevices;
+
+function renderDevices(devices){
+const le=document.getElementById('devices-list');if(!le)return;
+if(devices.length===0){le.innerHTML='<p class="text-gray-500 text-center py-8">📭 কোনো ডিভাইস নেই</p>';return;}
+le.innerHTML=devices.map(d=>{
+const isSuspicious=d.accounts.length>2;
+const cls=d.blocked?'device-card suspicious':(isSuspicious?'device-card suspicious':'device-card');
+const firstSeenStr=d.firstSeen?d.firstSeen.toLocaleDateString('bn-BD'):'N/A';
+return`<div class="${cls}" onclick="showDeviceDetail('${d.deviceId}')">
+<div class="flex items-start justify-between gap-3 flex-wrap">
+<div class="flex-1 min-w-0">
+<div class="flex items-center gap-2 mb-2 flex-wrap">
+<span class="text-2xl">${d.blocked?'🚫':isSuspicious?'⚠️':'📱'}</span>
+<p class="text-sm font-mono font-bold text-white truncate">${d.deviceId}</p>
+${d.blocked?'<span class="badge badge-blocked">Blocked</span>':isSuspicious?'<span class="badge badge-rejected">Suspicious</span>':'<span class="badge badge-active">Normal</span>'}
+</div>
+<div class="flex flex-wrap gap-2">
+<span class="text-[10px] bg-blue-500/20 text-blue-400 px-2 py-0.5 rounded-full font-bold">👥 ${d.accounts.length} Account</span>
+<span class="text-[10px] bg-emerald-500/20 text-emerald-400 px-2 py-0.5 rounded-full font-bold">💰 ৳${d.totalTaka.toFixed(0)}</span>
+<span class="text-[10px] bg-purple-500/20 text-purple-400 px-2 py-0.5 rounded-full">📅 ${firstSeenStr}</span>
+</div>
+</div>
+<button class="text-gray-400 text-xl">→</button>
+</div>
+</div>`;
+}).join('');
+}
+
+window.filterDevices=function(){
+const s=document.getElementById('device-search').value.toLowerCase();
+const f=document.getElementById('device-filter').value;
+let filtered=allDevices;
+if(s)filtered=filtered.filter(d=>d.deviceId.toLowerCase().includes(s));
+if(f==='normal')filtered=filtered.filter(d=>d.accounts.length<=2&&!d.blocked);
+else if(f==='suspicious')filtered=filtered.filter(d=>d.accounts.length>2&&!d.blocked);
+else if(f==='blocked')filtered=filtered.filter(d=>d.blocked);
+renderDevices(filtered);
+};
+
+window.showDeviceDetail=function(deviceId){
+const d=allDevices.find(x=>x.deviceId===deviceId);if(!d)return;
+currentDeviceId=deviceId;
+const accsHtml=d.accounts.map(a=>`<div class="p-3 rounded-xl bg-white/[0.03] border border-white/5">
+<p class="text-sm font-bold">${escapeHtmlAd(a.name)}</p>
+<p class="text-xs text-gray-400">${escapeHtmlAd(a.email)}</p>
+<p class="text-xs text-emerald-400 font-bold mt-1">৳${(a.taka||0).toFixed(2)}</p>
+</div>`).join('');
+document.getElementById('device-detail-content').innerHTML=`
+<div class="p-3 rounded-xl bg-white/[0.03] border border-white/5"><p class="text-xs text-gray-400">🆔 ডিভাইস ID</p><p class="text-sm font-mono break-all">${d.deviceId}</p></div>
+<div class="grid grid-cols-3 gap-2">
+<div class="p-3 rounded-xl bg-blue-500/10 border border-blue-500/20 text-center"><p class="text-[10px] text-gray-400">Accounts</p><p class="text-xl font-black text-blue-400">${d.accounts.length}</p></div>
+<div class="p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-center"><p class="text-[10px] text-gray-400">মোট টাকা</p><p class="text-xl font-black text-emerald-400">৳${d.totalTaka.toFixed(0)}</p></div>
+<div class="p-3 rounded-xl bg-purple-500/10 border border-purple-500/20 text-center"><p class="text-[10px] text-gray-400">First Seen</p><p class="text-xs font-bold text-purple-400 mt-1">${d.firstSeen?d.firstSeen.toLocaleDateString('bn-BD'):'N/A'}</p></div>
+</div>
+<h4 class="font-bold text-sm mt-3">👥 Accounts on this Device:</h4>
+<div class="space-y-2">${accsHtml}</div>`;
+document.getElementById('device-detail-modal').classList.add('active');
+const blockBtn=document.getElementById('device-block-btn');
+blockBtn.textContent=d.blocked?'🔓 আনব্লক করুন':'🚫 ব্লক করুন';
+blockBtn.className=(d.blocked?'btn-success':'btn-danger')+' flex-1';
+};
+
+window.blockDeviceFromModal=async function(){
+if(!currentDeviceId)return;
+const d=allDevices.find(x=>x.deviceId===currentDeviceId);if(!d)return;
+const action=d.blocked?'unblock':'block';
+if(!confirm(`⚠️ এই ডিভাইসের সব Account কি ${action==='block'?'Block':'Unblock'} করবেন?\n\nডিভাইস: ${currentDeviceId}\nAccounts: ${d.accounts.length}`))return;
+loader.style.display='flex';
+try{
+for(const acc of d.accounts){
+await updateDoc(doc(db,"users",acc.id),{isBlocked:action==='block'});
+}
+await logAdminAction(action==='block'?'DEVICE_BLOCK':'DEVICE_UNBLOCK',null,{deviceId:currentDeviceId,accountCount:d.accounts.length});
+showToast(action==='block'?'🚫 ডিভাইস Blocked!':'✅ ডিভাইস Unblocked!');
+closeModal('device-detail-modal');
+loadDevices();
+}catch(e){showToast('❌ '+e.message);}
+loader.style.display='none';
+};
+
+// ═══════════════════════════════════════════
+// QUIZ MANAGEMENT
+// ═══════════════════════════════════════════
 async function loadQuizzes(){
 try{
 const snap=await getDocs(query(collection(db,"quiz_daily"),orderBy("date","desc")));
@@ -1027,12 +1180,8 @@ const today=new Date().toISOString().split('T')[0];
 const todayQuiz=allQuizzes.find(q=>q.date===today);
 document.getElementById('qz-today-status').textContent=todayQuiz?'✅':'❌';
 document.getElementById('qz-today-participants').textContent=todayQuiz?(todayQuiz.currentParticipants||0):0;
-
 const container=document.getElementById('quiz-list-container');
-if(allQuizzes.length===0){
-container.innerHTML=`<div class="text-center py-12"><p class="text-5xl mb-3">🧠</p><p class="text-gray-500 text-sm">কোনো কুইজ নেই</p></div>`;
-return;
-}
+if(allQuizzes.length===0){container.innerHTML=`<div class="text-center py-12"><p class="text-5xl mb-3">🧠</p><p class="text-gray-500 text-sm">কোনো কুইজ নেই</p></div>`;return;}
 container.innerHTML=allQuizzes.map(q=>{
 const isToday=q.date===today;
 const isPast=q.date<today;
@@ -1043,14 +1192,12 @@ const maxP=q.maxParticipants||0;
 const currentP=q.currentParticipants||0;
 const isFull=maxP>0&&currentP>=maxP;
 const fillPct=maxP>0?Math.min((currentP/maxP)*100,100):0;
-
 let statusBadge='';
 if(isFull)statusBadge='<span class="badge badge-inactive">🔴 স্লট শেষ</span>';
 else if(isToday&&isActive)statusBadge='<span class="badge badge-active">🟢 আজকের</span>';
 else if(isPast)statusBadge='<span class="badge badge-inactive">📅 পুরনো</span>';
 else if(!isActive)statusBadge='<span class="badge badge-inactive">⏸️ বন্ধ</span>';
 else statusBadge='<span class="badge badge-pending">⏰ ভবিষ্যত</span>';
-
 return`<div class="work-card" style="border-color:${isToday?'rgba(168,85,247,.4)':'rgba(255,255,255,.05)'}">
 <div class="flex items-start justify-between gap-3 flex-wrap">
 <div class="flex items-center gap-3 flex-1 min-w-[200px]">
@@ -1094,15 +1241,12 @@ if(target)target.classList.remove('hidden');
 if(tab!=='list')loadQuizSubmissions();
 };
 
-window.setQuizMax=function(n){
-document.getElementById('quiz-max-participants').value=n;
-showToast(n===0?'♾️ অসীম সেট!':`✅ ${n} জন সেট!`);
-};
+window.setQuizMax=function(n){document.getElementById('quiz-max-participants').value=n;showToast(n===0?'♾️ অসীম সেট!':`✅ ${n} জন সেট!`);};
 
 window.showCreateQuizModal=function(){
 document.getElementById('quiz-modal-title').textContent='🧠 নতুন কুইজ তৈরি';
 document.getElementById('quiz-date-input').value=new Date().toISOString().split('T')[0];
-document.getElementById('quiz-reward-per').value='5';
+document.getElementById('quiz-reward-per').value='0.5';
 document.getElementById('quiz-max-participants').value='50';
 document.getElementById('quiz-active-check').checked=true;
 document.getElementById('quiz-questions-container').innerHTML='';
@@ -1139,20 +1283,12 @@ container.appendChild(div);
 updateQuizQuestionCount();
 };
 
-window.removeQuizQuestion=function(idx){
-const box=document.querySelector(`.quiz-question-box[data-qidx="${idx}"]`);
-if(box)box.remove();
-updateQuizQuestionCount();
-};
-
-function updateQuizQuestionCount(){
-const count=document.querySelectorAll('.quiz-question-box').length;
-document.getElementById('quiz-total-questions').textContent=count;
-}
+window.removeQuizQuestion=function(idx){const box=document.querySelector(`.quiz-question-box[data-qidx="${idx}"]`);if(box)box.remove();updateQuizQuestionCount();};
+function updateQuizQuestionCount(){const count=document.querySelectorAll('.quiz-question-box').length;document.getElementById('quiz-total-questions').textContent=count;}
 
 window.saveQuiz=async function(){
 const date=document.getElementById('quiz-date-input').value;
-const rewardPerQuestion=parseInt(document.getElementById('quiz-reward-per').value)||5;
+const rewardPerQuestion=parseFloat(document.getElementById('quiz-reward-per').value)||0.5;
 const maxParticipants=parseInt(document.getElementById('quiz-max-participants').value)||0;
 const isActive=document.getElementById('quiz-active-check').checked;
 if(!date)return showToast('⚠️ তারিখ দিন!');
@@ -1175,10 +1311,8 @@ loader.style.display='flex';
 try{
 const existingSnap=await getDoc(doc(db,"quiz_daily",date));
 let quizData={date,questions,rewardPerQuestion,maxParticipants,isActive,updatedAt:serverTimestamp()};
-
 if(existingSnap.exists()){
 if(!confirm(`⚠️ ${date} তারিখে কুইজ আছে। Replace?`)){loader.style.display='none';return;}
-// Keep existing currentParticipants
 quizData.currentParticipants=existingSnap.data().currentParticipants||0;
 await updateDoc(doc(db,"quiz_daily",date),quizData);
 showToast('✅ আপডেট!');
@@ -1188,7 +1322,7 @@ quizData.currentParticipants=0;
 await setDoc(doc(db,"quiz_daily",date),quizData);
 showToast('✅ তৈরি!');
 }
-await logAdminAction('QUIZ_CREATE',null,{date,questionCount:questions.length,maxParticipants});
+await logAdminAction('QUIZ_CREATE',null,{date,questionCount:questions.length,maxParticipants,rewardPerQuestion});
 closeModal('quiz-modal');
 loadQuizzes();
 }catch(e){showToast('❌ '+e.message);}
@@ -1202,7 +1336,7 @@ if(!snap.exists())return;
 const q=snap.data();
 document.getElementById('quiz-modal-title').textContent='✏️ এডিট';
 document.getElementById('quiz-date-input').value=q.date||'';
-document.getElementById('quiz-reward-per').value=q.rewardPerQuestion||5;
+document.getElementById('quiz-reward-per').value=q.rewardPerQuestion||0.5;
 document.getElementById('quiz-max-participants').value=q.maxParticipants||0;
 document.getElementById('quiz-active-check').checked=q.isActive!==false;
 document.getElementById('quiz-questions-container').innerHTML='';
@@ -1362,7 +1496,9 @@ showToast(`✅ ${approved}!${failed>0?` ❌ ${failed}`:''}`);
 loadQuizSubmissions();
 };
 
-// ===== HOME TASKS =====
+// ═══════════════════════════════════════════
+// HOME TASKS
+// ═══════════════════════════════════════════
 async function loadHomeTasks(){
 try{
 const snap=await getDocs(query(collection(db,"tasks"),orderBy("order","asc")));
@@ -1373,7 +1509,7 @@ let totalReward=0;allHomeTasks.forEach(t=>{totalReward+=(t.reward||0);});
 document.getElementById('ht-total').textContent=allHomeTasks.length;
 document.getElementById('ht-active').textContent=active;
 document.getElementById('ht-inactive').textContent=inactive;
-document.getElementById('ht-reward-total').textContent=totalReward.toFixed(0);
+document.getElementById('ht-reward-total').textContent=totalReward.toFixed(1);
 const listEl=document.getElementById('home-tasks-list');
 if(allHomeTasks.length===0){listEl.innerHTML=`<div class="text-center py-12"><p class="text-5xl mb-3">💼</p><p class="text-gray-500 text-sm">টাস্ক নেই</p></div>`;return;}
 const tl={ad:'📺 অ্যাড',link:'🔗 লিংক',youtube:'📺 YouTube',facebook:'👍 Facebook',tiktok:'🎵 TikTok',telegram:'✈️ Telegram'};
@@ -1414,7 +1550,7 @@ document.getElementById('ht-edit-id').value='';
 document.getElementById('ht-icon').value='🎬';
 document.getElementById('ht-label').value='';
 document.getElementById('ht-desc').value='';
-document.getElementById('ht-reward').value='10';
+document.getElementById('ht-reward').value='5';
 document.getElementById('ht-cooldown').value='5';
 document.getElementById('ht-daily-limit').value='10';
 document.getElementById('ht-total-limit').value='0';
@@ -1443,7 +1579,7 @@ document.getElementById('ht-edit-id').value=id;
 document.getElementById('ht-icon').value=t.icon||'🎬';
 document.getElementById('ht-label').value=t.label||'';
 document.getElementById('ht-desc').value=t.desc||'';
-document.getElementById('ht-reward').value=t.reward||10;
+document.getElementById('ht-reward').value=t.reward||5;
 document.getElementById('ht-cooldown').value=t.cooldown||5;
 document.getElementById('ht-daily-limit').value=t.dailyLimit||0;
 document.getElementById('ht-total-limit').value=t.totalLimit||0;
@@ -1460,7 +1596,7 @@ const editId=document.getElementById('ht-edit-id').value;
 const icon=document.getElementById('ht-icon').value.trim()||'🎬';
 const label=document.getElementById('ht-label').value.trim();
 const desc=document.getElementById('ht-desc').value.trim();
-const reward=parseInt(document.getElementById('ht-reward').value)||10;
+const reward=parseFloat(document.getElementById('ht-reward').value)||5;
 const cooldown=parseInt(document.getElementById('ht-cooldown').value)||5;
 const dailyLimit=parseInt(document.getElementById('ht-daily-limit').value)||0;
 const totalLimit=parseInt(document.getElementById('ht-total-limit').value)||0;
@@ -1498,7 +1634,9 @@ try{await deleteDoc(doc(db,"tasks",id));showToast('✅!');loadHomeTasks();}catch
 });
 };
 
-// ===== CAMPAIGNS =====
+// ═══════════════════════════════════════════
+// CAMPAIGNS
+// ═══════════════════════════════════════════
 async function loadCampaigns(){
 try{
 const snap=await getDocs(query(collection(db,"campaigns"),orderBy("createdAt","desc")));
@@ -1560,9 +1698,9 @@ document.getElementById('camp-platform').value='tiktok';
 document.getElementById('camp-tasktype').value='follow';
 document.getElementById('camp-link').value='';
 document.getElementById('camp-desc').value='';
-document.getElementById('camp-client-paid').value='500';
-document.getElementById('camp-slots').value='200';
-document.getElementById('camp-per-user-taka').value='1';
+document.getElementById('camp-client-paid').value='100';
+document.getElementById('camp-slots').value='50';
+document.getElementById('camp-per-user-taka').value='0.5';
 document.getElementById('camp-active').checked=true;
 document.getElementById('camp-wait-time').value='15';
 const ex=new Date();ex.setDate(ex.getDate()+7);
@@ -1580,7 +1718,7 @@ const perUserTaka=parseFloat(document.getElementById('camp-per-user-taka').value
 const wd=slots*perUserTaka;
 document.getElementById('camp-my-income').textContent=myIncome.toFixed(0);
 document.getElementById('camp-user-pool').textContent=userPool.toFixed(0);
-document.getElementById('camp-will-distribute').textContent=wd.toFixed(0);
+document.getElementById('camp-will-distribute').textContent=wd.toFixed(2);
 };
 
 window.saveCampaign=async function(){
@@ -1864,7 +2002,7 @@ showToast('✅!');
 });
 };
 
-window.setWithdrawAmount=function(amount){const input=document.getElementById('manual-withdraw-amount');input.value=(parseInt(input.value)||0)+amount;};
+window.setWithdrawAmount=function(amount){const input=document.getElementById('manual-withdraw-amount');input.value=(parseFloat(input.value)||0)+amount;};
 
 window.showUserBalance=function(){
 const select=document.getElementById('manual-withdraw-user');
@@ -2034,14 +2172,14 @@ try{
 const snap=await getDocs(query(collection(db,"promo_codes"),orderBy("createdAt","desc")));
 const c=document.getElementById('promo-codes-list');
 if(snap.empty){c.innerHTML='<p class="text-gray-500 text-center py-8">নেই</p>';return;}
-c.innerHTML=snap.docs.map(d=>{const data=d.data();return`<div class="task-card mb-3 flex flex-wrap justify-between items-center gap-2"><div><p class="text-xl font-mono font-bold text-yellow-400">${data.code}</p><p class="text-sm">🎁 ৳${data.rewardTaka||10} • 📊${data.usedCount||0}</p></div><button onclick="deletePromoCode('${d.id}')" class="btn-danger text-xs px-3 py-1">🗑️</button></div>`;}).join('');
+c.innerHTML=snap.docs.map(d=>{const data=d.data();return`<div class="task-card mb-3 flex flex-wrap justify-between items-center gap-2"><div><p class="text-xl font-mono font-bold text-yellow-400">${data.code}</p><p class="text-sm">🎁 ৳${data.rewardTaka||5} • 📊${data.usedCount||0}</p></div><button onclick="deletePromoCode('${d.id}')" class="btn-danger text-xs px-3 py-1">🗑️</button></div>`;}).join('');
 }catch(e){console.error(e);}
 }
 
 window.showCreatePromoModal=function(){
 const today=new Date();
 document.getElementById('promo-code-input').value=`TK${today.getFullYear()}${String(today.getMonth()+1).padStart(2,'0')}${String(today.getDate()).padStart(2,'0')}${Math.floor(100+Math.random()*900)}`;
-document.getElementById('promo-reward-input').value='10';
+document.getElementById('promo-reward-input').value='5';
 document.getElementById('promo-active-check').checked=true;
 const t=new Date();t.setDate(t.getDate()+1);
 document.getElementById('promo-expiry-input').value=t.toISOString().slice(0,16);
@@ -2052,7 +2190,7 @@ window.createPromoCode=async function(){
 try{
 let code=document.getElementById('promo-code-input').value.trim().toUpperCase();
 if(!code)code='PROMO'+Date.now();
-const rewardTaka=parseInt(document.getElementById('promo-reward-input').value)||10;
+const rewardTaka=parseFloat(document.getElementById('promo-reward-input').value)||5;
 await addDoc(collection(db,"promo_codes"),{code,rewardTaka,reward:rewardTaka,isActive:document.getElementById('promo-active-check').checked,expiresAt:document.getElementById('promo-expiry-input').value||null,usedCount:0,createdAt:serverTimestamp()});
 showToast('✅!');closeModal('promo-modal');
 }catch(e){showToast('❌ '+e.message);}
@@ -2117,12 +2255,12 @@ const d=snap.data();
 verificationEnabled=d.verificationEnabled!==false;
 document.getElementById('cfg-verification-enabled').checked=verificationEnabled;
 updateVerifyToggleUI(verificationEnabled);
-document.getElementById('cfg-reward-ad').value=d.rewardAd||10;
-document.getElementById('cfg-reward-bost').value=d.rewardBost||5;
-document.getElementById('cfg-reward-daily').value=d.rewardDaily||10;
-document.getElementById('cfg-reward-promo').value=d.rewardPromo||10;
-document.getElementById('cfg-reward-referral').value=d.rewardReferral||50;
-document.getElementById('cfg-reward-telegram').value=d.rewardTelegram||20;
+document.getElementById('cfg-reward-ad').value=d.rewardAd||5;
+document.getElementById('cfg-reward-bost').value=d.rewardBost||2;
+document.getElementById('cfg-reward-daily').value=d.rewardDaily||3;
+document.getElementById('cfg-reward-promo').value=d.rewardPromo||5;
+document.getElementById('cfg-reward-referral').value=d.rewardReferral||20;
+document.getElementById('cfg-reward-telegram').value=d.rewardTelegram||10;
 document.getElementById('cfg-bkash-number').value=d.bkashNumber||'';
 document.getElementById('cfg-nagad-number').value=d.nagadNumber||'';
 const wl=d.withdrawalLimits||{};
@@ -2145,12 +2283,12 @@ const maxRecharge=parseInt(document.getElementById('cfg-max-recharge').value)||1
 if(minBkash>maxBkash)return showToast('⚠️ বিকাশ min > max!');
 if(minRecharge>maxRecharge)return showToast('⚠️ রিচার্জ min > max!');
 await setDoc(doc(db,"config","main"),{
-rewardAd:parseInt(document.getElementById('cfg-reward-ad').value)||10,
-rewardBost:parseInt(document.getElementById('cfg-reward-bost').value)||5,
-rewardDaily:parseInt(document.getElementById('cfg-reward-daily').value)||10,
-rewardPromo:parseInt(document.getElementById('cfg-reward-promo').value)||10,
-rewardReferral:parseInt(document.getElementById('cfg-reward-referral').value)||50,
-rewardTelegram:parseInt(document.getElementById('cfg-reward-telegram').value)||20,
+rewardAd:parseFloat(document.getElementById('cfg-reward-ad').value)||5,
+rewardBost:parseFloat(document.getElementById('cfg-reward-bost').value)||2,
+rewardDaily:parseFloat(document.getElementById('cfg-reward-daily').value)||3,
+rewardPromo:parseFloat(document.getElementById('cfg-reward-promo').value)||5,
+rewardReferral:parseInt(document.getElementById('cfg-reward-referral').value)||20,
+rewardTelegram:parseInt(document.getElementById('cfg-reward-telegram').value)||10,
 bkashNumber:document.getElementById('cfg-bkash-number').value.trim(),
 nagadNumber:document.getElementById('cfg-nagad-number').value.trim(),
 withdrawalLimits:{
@@ -2175,7 +2313,6 @@ let toastTimeout;
 function showToast(msg){const t=document.getElementById('toast');document.getElementById('toast-message').textContent=msg;t.style.display='block';clearTimeout(toastTimeout);toastTimeout=setTimeout(()=>t.style.display='none',4000);}
 window.showToast=showToast;
 
-// ===== BULK TAKA RESET =====
 window.showResetTakaConfirm=function(type){
 pendingResetType=type;
 const titles={'balance':'সব ইউজারের ব্যালেন্স ৳০?','everything':'সম্পূর্ণ রিসেট?','tasks':'টাস্ক হিস্ট্রি রিসেট?'};
@@ -2267,7 +2404,7 @@ if(date){infoEl.classList.remove('hidden');document.getElementById('last-reset-t
 }catch(e){}
 };
 
-console.log('👑 Admin Panel v4.3 Loaded — Quiz Slot Limit Feature ACTIVE!');
+console.log('👑 Admin Panel v5.3 Loaded — Device Management + New Rates!');
 </script>
 </body>
 </html>
