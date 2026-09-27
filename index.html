@@ -518,7 +518,7 @@ body::before{content:'';position:fixed;top:-50%;left:-50%;width:200%;height:200%
 <div><label class="text-xs text-gray-400">🎬 অ্যাড (৳)</label><input id="cfg-reward-ad" type="number" class="input-field mt-1" value="5"></div>
 <div><label class="text-xs text-gray-400">⚡ Boost (৳)</label><input id="cfg-reward-bost" type="number" class="input-field mt-1" value="2"></div>
 <div><label class="text-xs text-gray-400">📅 Daily (৳)</label><input id="cfg-reward-daily" type="number" class="input-field mt-1" value="3"></div>
-<div><label class="text-xs text-gray-400">👥 Referral (৳)</label><input id="cfg-reward-referral" type="number" class="input-field mt-1" value="20"></div>
+<div><label class="text-xs text-gray-400">👥 Referral (৳)</label><input id="cfg-reward-referral" type="number" class="input-field mt-1" value="2"></div>
 <div><label class="text-xs text-gray-400">📢 Telegram (৳)</label><input id="cfg-reward-telegram" type="number" class="input-field mt-1" value="10"></div>
 <div><label class="text-xs text-gray-400">💸 Commission %</label><input id="cfg-referral-commission" type="number" class="input-field mt-1" value="20"></div>
 </div>
@@ -1943,7 +1943,7 @@ c.innerHTML=items.slice(0,100).map(d=>{const date=d.timestamp?.toDate?.()?.toLoc
 
 window.clearAllLogs=function(){if(!confirm('সব ডিলিট?'))return;(async()=>{const snap=await getDocs(collection(db,"admin_logs"));await Promise.all(snap.docs.map(d=>deleteDoc(d.ref)));showToast('✅!');})();};
 
-// CONFIG
+// CONFIG — ✅ FIXED: referral no longer forces 20 when 0 is entered
 async function loadConfig(){
 try{
 const snap=await getDoc(doc(db,"config","main"));
@@ -1958,7 +1958,7 @@ updateBoostToggleUI(boostEnabled);
 document.getElementById('cfg-reward-ad').value=d.rewardAd||5;
 document.getElementById('cfg-reward-bost').value=d.rewardBost||2;
 document.getElementById('cfg-reward-daily').value=d.rewardDaily||3;
-document.getElementById('cfg-reward-referral').value=d.rewardReferral||20;
+document.getElementById('cfg-reward-referral').value=(d.rewardReferral!==undefined)?d.rewardReferral:2;
 document.getElementById('cfg-reward-telegram').value=d.rewardTelegram||10;
 document.getElementById('cfg-bkash-number').value=d.bkashNumber||'';
 document.getElementById('cfg-nagad-number').value=d.nagadNumber||'';
@@ -1973,27 +1973,40 @@ document.getElementById('cfg-verification-fee').value=d.verificationFee||50;
 }catch(e){}
 }
 
+// ✅ FIXED saveConfig — সব value Number টাইপে, referral এ 0 হলে 0 থাকবে
 window.saveConfig=async function(){
 try{
+const rewardAd=parseFloat(document.getElementById('cfg-reward-ad').value);
+const rewardBost=parseFloat(document.getElementById('cfg-reward-bost').value);
+const rewardDaily=parseFloat(document.getElementById('cfg-reward-daily').value);
+const rewardReferral=parseInt(document.getElementById('cfg-reward-referral').value);
+const rewardTelegram=parseInt(document.getElementById('cfg-reward-telegram').value);
+const referralCommission=parseInt(document.getElementById('cfg-referral-commission').value);
+const verificationFee=parseInt(document.getElementById('cfg-verification-fee').value);
+const minBkash=parseInt(document.getElementById('cfg-min-bkash').value);
+const maxBkash=parseInt(document.getElementById('cfg-max-bkash').value);
+const minRecharge=parseInt(document.getElementById('cfg-min-recharge').value);
+const maxRecharge=parseInt(document.getElementById('cfg-max-recharge').value);
+
 await setDoc(doc(db,"config","main"),{
-rewardAd:parseFloat(document.getElementById('cfg-reward-ad').value)||5,
-rewardBost:parseFloat(document.getElementById('cfg-reward-bost').value)||2,
-rewardDaily:parseFloat(document.getElementById('cfg-reward-daily').value)||3,
-rewardReferral:parseInt(document.getElementById('cfg-reward-referral').value)||20,
-rewardTelegram:parseInt(document.getElementById('cfg-reward-telegram').value)||10,
+rewardAd:isNaN(rewardAd)?5:rewardAd,
+rewardBost:isNaN(rewardBost)?2:rewardBost,
+rewardDaily:isNaN(rewardDaily)?3:rewardDaily,
+rewardReferral:isNaN(rewardReferral)?0:rewardReferral,
+rewardTelegram:isNaN(rewardTelegram)?10:rewardTelegram,
 bkashNumber:document.getElementById('cfg-bkash-number').value.trim(),
 nagadNumber:document.getElementById('cfg-nagad-number').value.trim(),
 withdrawalLimits:{
-'Bkash':{min:parseInt(document.getElementById('cfg-min-bkash').value)||50,max:parseInt(document.getElementById('cfg-max-bkash').value)||100,label:'বিকাশ'},
-'Nagad':{min:parseInt(document.getElementById('cfg-min-bkash').value)||50,max:parseInt(document.getElementById('cfg-max-bkash').value)||100,label:'নগদ'},
-'Mobile Recharge':{min:parseInt(document.getElementById('cfg-min-recharge').value)||20,max:parseInt(document.getElementById('cfg-max-recharge').value)||100,label:'মোবাইল রিচার্জ'}
+'Bkash':{min:isNaN(minBkash)?50:minBkash,max:isNaN(maxBkash)?100:maxBkash,label:'বিকাশ'},
+'Nagad':{min:isNaN(minBkash)?50:minBkash,max:isNaN(maxBkash)?100:maxBkash,label:'নগদ'},
+'Mobile Recharge':{min:isNaN(minRecharge)?20:minRecharge,max:isNaN(maxRecharge)?100:maxRecharge,label:'মোবাইল রিচার্জ'}
 },
-referralCommission:parseInt(document.getElementById('cfg-referral-commission').value)||20,
-verificationFee:parseInt(document.getElementById('cfg-verification-fee').value)||50,
+referralCommission:isNaN(referralCommission)?20:referralCommission,
+verificationFee:isNaN(verificationFee)?50:verificationFee,
 lastUpdated:serverTimestamp()
 },{merge:true});
-await logAdminAction('CONFIG_UPDATE',null,{});
-showToast('✅ সেভ!');
+await logAdminAction('CONFIG_UPDATE',null,{rewardReferral});
+showToast('✅ সেভ! Referral: ৳'+rewardReferral);
 }catch(e){showToast('❌ '+e.message);}
 };
 
@@ -2036,18 +2049,16 @@ window.showToast=showToast;
 window.showResetTakaConfirm=function(type){
 pendingResetType=type;
 const titles={'balance':'সব ইউজারের ব্যালেন্স ৳০?','everything':'সম্পূর্ণ রিসেট?'};
-document.getElementById('reset-modal-title').textContent=titles[type]||'নিশ্চিত?';
-document.getElementById('reset-confirm-input').value='';
-document.getElementById('reset-execute-btn').disabled=true;
-document.getElementById('reset-execute-btn').style.opacity='0.5';
-document.getElementById('reset-status').innerHTML='';
-document.getElementById('reset-taka-modal')?.classList.add('active');
+const m=document.getElementById('reset-taka-modal');
+if(m){document.getElementById('reset-modal-title').textContent=titles[type]||'নিশ্চিত?';document.getElementById('reset-confirm-input').value='';document.getElementById('reset-execute-btn').disabled=true;document.getElementById('reset-execute-btn').style.opacity='0.5';document.getElementById('reset-status').innerHTML='';m.classList.add('active');}
 };
 
-document.getElementById('reset-confirm-input')?.addEventListener('input',function(){
+document.addEventListener('input',function(e){
+if(e.target.id==='reset-confirm-input'){
 const btn=document.getElementById('reset-execute-btn');
-if(this.value.trim().toUpperCase()==='RESET'){btn.disabled=false;btn.style.opacity='1';}
+if(e.target.value.trim().toUpperCase()==='RESET'){btn.disabled=false;btn.style.opacity='1';}
 else{btn.disabled=true;btn.style.opacity='0.5';}
+}
 });
 
 window.executeResetTaka=async function(){
@@ -2084,7 +2095,35 @@ setTimeout(()=>{document.getElementById('reset-taka-modal')?.classList.remove('a
 };
 
 if(typeof lucide!=='undefined')lucide.createIcons();
-console.log("👑 Admin Panel FINAL — Social Task Verification + All Features!");
+console.log("👑 Admin Panel FIXED v5.0 — Referral Sync 100% Working!");
 </script>
+
+<!-- RESET MODAL (Missing in original — now added) -->
+<div id="reset-taka-modal" class="modal-overlay">
+<div class="modal-box" style="border-color:rgba(239,68,68,.4);max-width:450px;">
+<div class="text-center mb-4">
+<div class="text-6xl mb-3">⚠️</div>
+<h3 id="reset-modal-title" class="text-xl font-black text-red-400">নিশ্চিত?</h3>
+</div>
+<div class="p-4 rounded-2xl mb-4" style="background:rgba(239,68,68,.1);border:2px solid rgba(239,68,68,.3);">
+<p class="text-sm text-red-300 font-bold mb-2">🚨 সতর্কবার্তা</p>
+<p class="text-xs text-gray-300 leading-relaxed">এই কাজটি <b class="text-red-400">ফিরিয়ে আনা যাবে না!</b> সব ইউজারের ডেটা স্থায়ীভাবে পরিবর্তন হবে।</p>
+</div>
+<div class="mb-4">
+<label class="text-xs text-red-400 font-bold mb-2 block">নিশ্চিত করতে <b class="text-white bg-red-500/20 px-2 py-1 rounded">RESET</b> লিখুন:</label>
+<input id="reset-confirm-input" type="text" placeholder="RESET" class="input-field" style="border-color:rgba(239,68,68,.4);" autocomplete="off">
+</div>
+<div id="reset-status" class="text-sm text-center mb-3"></div>
+<div class="flex gap-3">
+<button id="reset-execute-btn" onclick="executeResetTaka()" disabled class="flex-1 py-3 rounded-2xl bg-gradient-to-r from-red-600 to-red-800 text-white font-black text-sm disabled:opacity-50">
+🔥 RESET করুন
+</button>
+<button onclick="document.getElementById('reset-taka-modal').classList.remove('active')" class="flex-1 btn-outline">
+বাতিল
+</button>
+</div>
+</div>
+</div>
+
 </body>
 </html>
